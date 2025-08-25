@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Jogo da Velha - Classes JavaScript</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .tabuleiro {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 300px;
+            margin: 30px auto;
+        }
+        
+        .celula {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .celula:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .celula.vazia {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .controles {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .estatisticas {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .estatisticas h3 {
+            margin-top: 0;
+            text-align: center;
+        }
+        
+        .jogador {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .exemplos {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .exemplo-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .exemplo-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .log {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        
+        .log-info { background: rgba(0, 123, 255, 0.3); }
+        .log-success { background: rgba(40, 167, 69, 0.3); }
+        .log-warning { background: rgba(255, 193, 7, 0.3); }
+        .log-error { background: rgba(220, 53, 69, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Jogo da Velha</h1>
+        <h2 style="text-align: center; margin-bottom: 20px;">Classes JavaScript</h2>
+        
+        <div class="status" id="status">Vez do jogador: X</div>
+        
+        <div class="tabuleiro" id="tabuleiro">
+            <div class="celula vazia" data-linha="0" data-coluna="0"></div>
+            <div class="celula vazia" data-linha="0" data-coluna="1"></div>
+            <div class="celula vazia" data-linha="0" data-coluna="2"></div>
+            <div class="celula vazia" data-linha="1" data-coluna="0"></div>
+            <div class="celula vazia" data-linha="1" data-coluna="1"></div>
+            <div class="celula vazia" data-linha="1" data-coluna="2"></div>
+            <div class="celula vazia" data-linha="2" data-coluna="0"></div>
+            <div class="celula vazia" data-linha="2" data-coluna="1"></div>
+            <div class="celula vazia" data-linha="2" data-coluna="2"></div>
+        </div>
+        
+        <div class="controles">
+            <button onclick="reiniciarJogo()">🔄 Reiniciar</button>
+            <button onclick="mostrarEstatisticas()">📊 Estatísticas</button>
+            <button onclick="limparLog()">🗑️ Limpar Log</button>
+        </div>
+        
+        <div class="exemplos">
+            <h3>🎯 Exemplos de Jogos</h3>
+            <button class="exemplo-btn" onclick="executarExemplo('vitoriaX')">Vitória do X</button>
+            <button class="exemplo-btn" onclick="executarExemplo('vitoriaO')">Vitória do O</button>
+            <button class="exemplo-btn" onclick="executarExemplo('empate')">Empate</button>
+        </div>
+        
+        <div class="estatisticas" id="estatisticas" style="display: none;">
+            <h3>📊 Estatísticas dos Jogadores</h3>
+            <div class="jogador">
+                <span>Jogador X:</span>
+                <span id="statsX">Vitórias: 0 | Empates: 0 | Derrotas: 0</span>
+            </div>
+            <div class="jogador">
+                <span>Jogador O:</span>
+                <span id="statsO">Vitórias: 0 | Empates: 0 | Derrotas: 0</span>
+            </div>
+        </div>
+        
+        <div class="log" id="log">
+            <div class="log-entry log-info">🎮 Jogo iniciado! Clique nas células para jogar.</div>
+        </div>
+    </div>
+
+    <script>
+        // Classe JogoDaVelha
+        class JogoDaVelha {
+            constructor() {
+                this.tabuleiro = [
+                    [' ', ' ', ' '],
+                    [' ', ' ', ' '],
+                    [' ', ' ', ' ']
+                ];
+                this.jogadorAtual = 'X';
+                this.jogoAtivo = true;
+                this.vencedor = null;
+            }
+
+            fazerJogada(linha, coluna) {
+                if (linha < 0 || linha > 2 || coluna < 0 || coluna > 2) {
+                    return { sucesso: false, mensagem: 'Posição inválida!' };
+                }
+
+                if (this.tabuleiro[linha][coluna] !== ' ') {
+                    return { sucesso: false, mensagem: 'Posição já ocupada!' };
+                }
+
+                if (!this.jogoAtivo) {
+                    return { sucesso: false, mensagem: 'Jogo já terminou!' };
+                }
+
+                this.tabuleiro[linha][coluna] = this.jogadorAtual;
+
+                if (this.verificarVencedor(linha, coluna)) {
+                    this.vencedor = this.jogadorAtual;
+                    this.jogoAtivo = false;
+                    return { sucesso: true, mensagem: `Jogador ${this.jogadorAtual} venceu!` };
+                }
+
+                if (this.verificarEmpate()) {
+                    this.jogoAtivo = false;
+                    return { sucesso: true, mensagem: 'Empate!' };
+                }
+
+                this.jogadorAtual = this.jogadorAtual === 'X' ? 'O' : 'X';
+                return { sucesso: true, mensagem: `Vez do jogador ${this.jogadorAtual}` };
+            }
+
+            verificarVencedor(linha, coluna) {
+                const jogador = this.tabuleiro[linha][coluna];
+
+                // Verifica linha
+                if (this.tabuleiro[linha][0] === jogador && 
+                    this.tabuleiro[linha][1] === jogador && 
+                    this.tabuleiro[linha][2] === jogador) {
+                    return true;
+                }
+
+                // Verifica coluna
+                if (this.tabuleiro[0][coluna] === jogador && 
+                    this.tabuleiro[1][coluna] === jogador && 
+                    this.tabuleiro[2][coluna] === jogador) {
+                    return true;
+                }
+
+                // Verifica diagonal principal
+                if (linha === coluna) {
+                    if (this.tabuleiro[0][0] === jogador && 
+                        this.tabuleiro[1][1] === jogador && 
+                        this.tabuleiro[2][2] === jogador) {
+                        return true;
+                    }
+                }
+
+                // Verifica diagonal secundária
+                if (linha + coluna === 2) {
+                    if (this.tabuleiro[0][2] === jogador && 
+                        this.tabuleiro[1][1] === jogador && 
+                        this.tabuleiro[2][0] === jogador) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            verificarEmpate() {
+                for (let linha = 0; linha < 3; linha++) {
+                    for (let coluna = 0; coluna < 3; coluna++) {
+                        if (this.tabuleiro[linha][coluna] === ' ') {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            reiniciar() {
+                this.tabuleiro = [
+                    [' ', ' ', ' '],
+                    [' ', ' ', ' '],
+                    [' ', ' ', ' ']
+                ];
+                this.jogadorAtual = 'X';
+                this.jogoAtivo = true;
+                this.vencedor = null;
+            }
+        }
+
+        // Classe Jogador
+        class Jogador {
+            constructor(simbolo, nome) {
+                this.simbolo = simbolo;
+                this.nome = nome;
+                this.vitorias = 0;
+                this.empates = 0;
+                this.derrotas = 0;
+            }
+
+            registrarVitoria() {
+                this.vitorias++;
+            }
+
+            registrarEmpate() {
+                this.empates++;
+            }
+
+            registrarDerrota() {
+                this.derrotas++;
+            }
+        }
+
+        // Variáveis globais
+        let jogo = new JogoDaVelha();
+        let jogadorX = new Jogador('X', 'Jogador X');
+        let jogadorO = new Jogador('O', 'Jogador O');
+
+        // Funções do jogo
+        function fazerJogada(linha, coluna) {
+            if (!jogo.jogoAtivo) return;
+
+            const resultado = jogo.fazerJogada(linha, coluna);
+            
+            if (resultado.sucesso) {
+                atualizarTabuleiro();
+                atualizarStatus(resultado.mensagem);
+                adicionarLog(resultado.mensagem, 'success');
+
+                if (jogo.vencedor) {
+                    if (jogo.vencedor === 'X') {
+                        jogadorX.registrarVitoria();
+                        jogadorO.registrarDerrota();
+                    } else {
+                        jogadorO.registrarVitoria();
+                        jogadorX.registrarDerrota();
+                    }
+                    adicionarLog(`🎉 ${resultado.mensagem} 🎉`, 'success');
+                } else if (!jogo.jogoAtivo) {
+                    jogadorX.registrarEmpate();
+                    jogadorO.registrarEmpate();
+                    adicionarLog('🤝 Empate!', 'warning');
+                }
+            } else {
+                adicionarLog(resultado.mensagem, 'error');
+            }
+        }
+
+        function atualizarTabuleiro() {
+            const celulas = document.querySelectorAll('.celula');
+            celulas.forEach(celula => {
+                const linha = parseInt(celula.dataset.linha);
+                const coluna = parseInt(celula.dataset.coluna);
+                const valor = jogo.tabuleiro[linha][coluna];
+                
+                celula.textContent = valor;
+                celula.className = `celula ${valor === ' ' ? 'vazia' : ''}`;
+            });
+        }
+
+        function atualizarStatus(mensagem) {
+            document.getElementById('status').textContent = mensagem;
+        }
+
+        function reiniciarJogo() {
+            jogo.reiniciar();
+            atualizarTabuleiro();
+            atualizarStatus('Vez do jogador: X');
+            adicionarLog('🔄 Jogo reiniciado!', 'info');
+        }
+
+        function mostrarEstatisticas() {
+            const statsDiv = document.getElementById('estatisticas');
+            const statsX = document.getElementById('statsX');
+            const statsO = document.getElementById('statsO');
+            
+            statsX.textContent = `Vitórias: ${jogadorX.vitorias} | Empates: ${jogadorX.empates} | Derrotas: ${jogadorX.derrotas}`;
+            statsO.textContent = `Vitórias: ${jogadorO.vitorias} | Empates: ${jogadorO.empates} | Derrotas: ${jogadorO.derrotas}`;
+            
+            statsDiv.style.display = statsDiv.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function adicionarLog(mensagem, tipo) {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${tipo}`;
+            entry.textContent = mensagem;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function limparLog() {
+            document.getElementById('log').innerHTML = '<div class="log-entry log-info">🎮 Log limpo!</div>';
+        }
+
+        function executarExemplo(tipo) {
+            jogo.reiniciar();
+            atualizarTabuleiro();
+            
+            let jogadas = [];
+            
+            switch(tipo) {
+                case 'vitoriaX':
+                    jogadas = [
+                        { linha: 0, coluna: 0 }, // X
+                        { linha: 1, coluna: 1 }, // O
+                        { linha: 0, coluna: 1 }, // X
+                        { linha: 2, coluna: 2 }, // O
+                        { linha: 0, coluna: 2 }  // X (VITÓRIA!)
+                    ];
+                    adicionarLog('🎯 Executando exemplo: Vitória do X', 'info');
+                    break;
+                case 'vitoriaO':
+                    jogadas = [
+                        { linha: 0, coluna: 0 }, // X
+                        { linha: 1, coluna: 1 }, // O
+                        { linha: 2, coluna: 2 }, // X
+                        { linha: 0, coluna: 1 }, // O
+                        { linha: 2, coluna: 0 }, // X
+                        { linha: 0, coluna: 2 }  // O (VITÓRIA!)
+                    ];
+                    adicionarLog('🎯 Executando exemplo: Vitória do O', 'info');
+                    break;
+                case 'empate':
+                    jogadas = [
+                        { linha: 0, coluna: 0 }, // X
+                        { linha: 0, coluna: 1 }, // O
+                        { linha: 0, coluna: 2 }, // X
+                        { linha: 1, coluna: 0 }, // O
+                        { linha: 1, coluna: 1 }, // X
+                        { linha: 1, coluna: 2 }, // O
+                        { linha: 2, coluna: 0 }, // X
+                        { linha: 2, coluna: 1 }, // O
+                        { linha: 2, coluna: 2 }  // X (EMPATE!)
+                    ];
+                    adicionarLog('🎯 Executando exemplo: Empate', 'info');
+                    break;
+            }
+            
+            executarJogadas(jogadas);
+        }
+
+        function executarJogadas(jogadas) {
+            let i = 0;
+            const intervalo = setInterval(() => {
+                if (i >= jogadas.length || !jogo.jogoAtivo) {
+                    clearInterval(intervalo);
+                    return;
+                }
+                
+                const jogada = jogadas[i];
+                fazerJogada(jogada.linha, jogada.coluna);
+                i++;
+            }, 1000);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const celulas = document.querySelectorAll('.celula');
+            celulas.forEach(celula => {
+                celula.addEventListener('click', function() {
+                    const linha = parseInt(this.dataset.linha);
+                    const coluna = parseInt(this.dataset.coluna);
+                    fazerJogada(linha, coluna);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
